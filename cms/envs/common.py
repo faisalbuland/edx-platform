@@ -950,6 +950,7 @@ INSTALLED_APPS = [
     'openedx.core.djangoapps.contentserver',
     'course_creators',
     'openedx.core.djangoapps.external_auth',
+    'courseware',
     'student',  # misleading name due to sharing with lms
     'openedx.core.djangoapps.course_groups',  # not used in cms (yet), but tests run
     'xblock_config',
@@ -1014,6 +1015,9 @@ INSTALLED_APPS = [
 
     # Additional problem types
     'edx_jsme',    # Molecular Structure
+
+    # Surveys
+    'survey',
 
     'openedx.core.djangoapps.content.course_overviews',
     'openedx.core.djangoapps.content.course_structures.apps.CourseStructuresConfig',
@@ -1088,6 +1092,9 @@ INSTALLED_APPS = [
 
     # Dynamic schedules
     'openedx.core.djangoapps.schedules.apps.SchedulesConfig',
+
+    # Completion
+    'lms.djangoapps.completion.apps.CompletionAppConfig',
 
     # DRF filters
     'django_filters',
