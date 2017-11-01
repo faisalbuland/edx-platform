@@ -70,6 +70,7 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
 
         save: function(event) {
             event.preventDefault();
+            console.log("In CourseOutlineXBlockModal.\n")
             var requestData = this.getRequestData();
             if (!_.isEqual(requestData, {metadata: {}})) {
                 XBlockViewUtils.updateXBlockFields(this.model, requestData, {
@@ -208,6 +209,12 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
     });
 
     HighlightsXBlockModal = CourseOutlineXBlockModal.extend({
+
+        events: _.extend({}, CourseOutlineXBlockModal.prototype.events, {
+            'click .action-save': 'callAnalytics',
+            'click .action-cancel': 'callAnalytics'
+        }),
+
         initialize: function() {
             CourseOutlineXBlockModal.prototype.initialize.call(this);
             if (this.options.xblockType) {
@@ -231,6 +238,13 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
                 ),
                 {item: this.options.xblockType}
             );
+        },
+
+        callAnalytics: function (event) {
+            event.preventDefault();
+            analytics.track(event.currentTarget.className + " clicked.");
+            console.log(event.currentTarget.className + " clicked.\n");
+            this.save(event);
         },
 
         addActionButtons: function() {
