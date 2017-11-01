@@ -124,8 +124,10 @@ class User(models.Model):
             thread_count=response.get('thread_count', 0)
         )
 
-    def is_user_subscribed_to_thread(self, course_id, thread_id):
-        return thread_id in self._perform_subscribed_threads_request(course_id=course_id)
+    def is_user_subscribed_to_thread(self, thread_id):
+        thread_ids = [t['id'] for t in self._perform_subscribed_threads_request()['collection']]
+
+        return thread_id in thread_ids
 
     def _perform_subscribed_threads_request(self, query_params={}):
         if not self.course_id:

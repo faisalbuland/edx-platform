@@ -16,7 +16,7 @@ from edx_ace.recipient import Recipient
 from edx_ace.utils.date import deserialize
 from edxmako.shortcuts import marketing_link
 from opaque_keys.edx.keys import CourseKey
-from lms.lib.comment_client.user import User as CommentClientUser
+import lms.lib.comment_client as cc
 from lms.lib.comment_client.utils import merge_dict
 
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
@@ -35,9 +35,9 @@ class ResponseNotification(MessageType):
 @task(base=LoggedTask, routing_key=ROUTING_KEY)
 def send_ace_message(thread_id, thread_author_id, comment_author_id, course_id):
     thread_author = User.objects.get(id=thread_author_id)
-    cc_thread_author = CommentClientUser.from_django_user(thread_author)
+    cc_thread_author = cc.User(id=thread_author_id, course_id=course_id)
 
-    if cc_thread_author.is_user_subscribed_to_thread(course_id, thread_id):
+    if cc_thread_author.is_user_subscribed_to_thread(thread_id):
         comment_author = User.objects.get(id=comment_author_id)
 
         message = ResponseNotification().personalize(
