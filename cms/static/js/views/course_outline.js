@@ -206,7 +206,7 @@ define(['jquery', 'underscore', 'js/views/xblock_outline', 'common/js/components
                 });
 
                 if (modal) {
-                    analytics.track(event.currentTarget.className + " clicked.");
+                    analytics.track("edx.bi.opened_highlights_modal");
                     modal.show();
                 }
             },

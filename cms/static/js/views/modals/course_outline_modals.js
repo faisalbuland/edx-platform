@@ -241,7 +241,8 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
 
         callAnalytics: function (event) {
             event.preventDefault();
-            analytics.track(event.currentTarget.className + " clicked.");
+            analytics.track(
+                "edx.bi." + event.target.innerText.toLowerCase() + "_clicked_in_highlights_modal");
             this.save(event);
         },
 
