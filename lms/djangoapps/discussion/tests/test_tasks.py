@@ -1,10 +1,9 @@
-import ddt
 import json
+
+import ddt
 from mock import patch, Mock
 
-
 from lms.djangoapps.discussion.tasks import send_ace_message
-from lms.djangoapps.django_comment_client.tests.utils import ForumsEnableMixin
 from student.tests.factories import CourseEnrollmentFactory, UserFactory
 from django_comment_common.models import (
     CourseDiscussionSettings,
@@ -15,7 +14,7 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 
 
-def make_mock_response(*thread_ids):
+def make_mock_responder(*thread_ids):
     def mock_response(*args, **kwargs):
         collection = [
             {'id': thread_id} for thread_id in thread_ids
@@ -27,7 +26,6 @@ def make_mock_response(*thread_ids):
             'thread_count': len(collection)
         }
         return Mock(status_code=200, text=json.dumps(data), json=Mock(return_value=data))
-
     return mock_response
 
 
@@ -69,41 +67,23 @@ class TaskTestCase(ModuleStoreTestCase):
         config.save()
 
     @ddt.data(True, False)
-    @patch('student.models.cc.User.from_django_user')
-    @patch('edx_ace.send')
-    def test_send_message_2(self, mock_ace_send, mock_from_django_user, is_user_subscribed):
-        with patch('student.models.cc.User.subscribed_threads', return_value=is_user_subscribed):
-                send_ace_message(
-                    thread_id='dummy_discussion_id',
-                    thread_author_id=self.thread_author.id,
-                    comment_author_id=self.comment_author.id,
-                    course_id=self.course.id
-                )
-                with patch('lms.djangoapps.discussion.tasks._build_email_context') as build_email_context_mock:
-                    if is_user_subscribed:
-                        self.assertTrue(mock_ace_send.called)
-                        build_email_context_mock.assert_called_once_with(self.comment_author, 'dummy_discussion_id')
-                    else:
-                        self.assertFalse(mock_ace_send.called)
+    def test_send_message(self, user_subscribed):
+        with patch('requests.request') as mock_request, \
+             patch('edx_ace.ace.send') as mock_ace_send:
+            if user_subscribed:
+                mock_request.side_effect = make_mock_responder('dummy_discussion_id')
+            else:
+                mock_request.side_effect = make_mock_responder()
 
-    @ddt.data(True, False)
-    @patch('requests.request', autospec=True)
-    @patch('edx_ace.send')
-    def test_send_message(self, user_subscribed, mock_request, mock_ace_send):
-        if user_subscribed:
-            mock_request.side_effect = make_mock_response('dummy_discussion_id')
-        else:
-            mock_request.side_effect = make_mock_response()
+            send_ace_message.apply_async(kwargs={
+                'thread_id': 'dummy_discussion_id',
+                'thread_author_id': self.thread_author.id,
+                'comment_author_id': self.comment_author.id,
+                'course_id': self.course.id
+            })
 
-        send_ace_message(
-            thread_id='dummy_discussion_id',
-            thread_author_id=self.thread_author.id,
-            comment_author_id=self.comment_author.id,
-            course_id=self.course.id
-        )
-
-        if user_subscribed:
-            self.assertTrue(mock_ace_send.called)
-            # build_email_context_mock.assert_called_once_with(self.comment_author, 'dummy_discussion_id')
-        else:
-            self.assertFalse(mock_ace_send.called)
+            if user_subscribed:
+                self.assertTrue(mock_ace_send.called)
+                # build_email_context_mock.assert_called_once_with(self.comment_author, 'dummy_discussion_id')
+            else:
+                self.assertFalse(mock_ace_send.called)

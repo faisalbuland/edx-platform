@@ -45,7 +45,7 @@ def send_ace_message(thread_id, thread_author_id, comment_author_id, course_id):
             _get_course_language(course_id),
             _build_email_context(comment_author, thread_id)
         )
-        # ace.send(message)
+        ace.send(message)
 
 
 def _build_email_context(comment_author, thread_id):
