@@ -242,7 +242,7 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
         callAnalytics: function (event) {
             event.preventDefault();
             analytics.track(
-                "edx.bi." + event.target.innerText.toLowerCase() + "_clicked_in_highlights_modal");
+                "edx.bi.highlights." + event.target.innerText.toLowerCase());
             this.save(event);
         },
 
