@@ -2020,7 +2020,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djcelery',
 
-    # Initialization
+    # Common Initialization
+    'common_initialization.apps.CommonInitializationConfig',
+
+    # LMS-specific Initialization
     'lms_initialization.apps.LMSInitializationConfig',
 
     # Common views
