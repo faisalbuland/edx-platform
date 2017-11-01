@@ -11,11 +11,11 @@ from django_comment_common.models import (
     ForumsConfig,
     FORUM_ROLE_STUDENT,
 )
-from xmodule.modulestore.tests.factories import CourseFactory
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 
 
+@ddt.ddt
 class BlaTestCase(ModuleStoreTestCase):
 
     @patch.dict("django.conf.settings.FEATURES", {"ENABLE_DISCUSSION_SERVICE": True})
@@ -83,8 +83,8 @@ class BlaTestCase(ModuleStoreTestCase):
         with patch('student.models.cc.User.subscribed_threads', return_value=is_user_subscribed) and patch('edx_ace.send') as ace_message:
             send_ace_message(
                 thread_id='dummy_discussion_id',
-                thread_user_id=self.thread_user.id,
-                comment_user_id=self.comment_user.id,
+                thread_author_id=self.thread_user.id,
+                comment_author_id=self.comment_user.id,
                 course_id=self.course.id
             )
             # Sofiya - check context of the message to make sure it is called with the right thing
